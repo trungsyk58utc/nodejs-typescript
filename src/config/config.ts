@@ -10,7 +10,9 @@ const CONFIG = {
   endURL: '.phak8x5.mongodb.net/?retryWrites=true&w=majority',
   clusterDB: process.env.DB_CLUSTER,
   dbName: process.env.DB_NAME,
-  dbUserCollection: process.env.DB_USER_COLLECTION
+  dbUserCollection: process.env.DB_USER_COLLECTION,
+  accessTokenPrivateKey: process.env.ACCESS_TOKEN_SECRET_KEY,
+  refreshTokenPrivateKey: process.env.REFRESH_TOKEN_SECRET_KEY
 }
 
 export default CONFIG

@@ -40,7 +40,7 @@ class MongoDBClient {
   }
 
   get users(): Collection<User> {
-    return this.db.collection(dbUserCollection as string)
+    return this.db.collection(dbUserCollection as any)
   }
 }
 
