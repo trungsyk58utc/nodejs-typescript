@@ -1,8 +1,9 @@
 import { Collection, Db, MongoClient, ServerApiVersion } from 'mongodb'
 import CONFIG from '~/config/config'
+import RefreshToken from '~/models/Schemas/RefreshToken.schemas'
 import User from '~/models/Schemas/User.schemas'
 
-const { url, username, password, endURL, clusterDB, dbName, dbUserCollection } = CONFIG
+const { url, username, password, endURL, clusterDB, dbName, dbUserCollection, dbRefreshTokenCollection } = CONFIG
 const uri = `${url}${username}:${password}@${clusterDB}${endURL}`
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 class MongoDBClient {
@@ -40,7 +41,11 @@ class MongoDBClient {
   }
 
   get users(): Collection<User> {
-    return this.db.collection(dbUserCollection as any)
+    return this.db.collection(dbUserCollection as string)
+  }
+
+  get refreshToken(): Collection<RefreshToken> {
+    return this.db.collection(dbRefreshTokenCollection as string)
   }
 }
 

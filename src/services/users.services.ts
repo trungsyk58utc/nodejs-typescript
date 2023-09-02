@@ -1,10 +1,16 @@
 import User from '~/models/Schemas/User.schemas'
 import databaseService from './database.service'
 import * as argon2 from 'argon2'
-import { generateAccessToken, generateRefreshToken } from '~/utils/jwtToken'
+import {
+  decodeRefreshToken,
+  generateAccessToken,
+  generateNewRefreshToken,
+  generateRefreshToken
+} from '~/utils/jwtToken'
 import jwt, { Secret } from 'jsonwebtoken'
 import CONFIG from '~/config/config'
 import { ObjectId } from 'mongodb'
+import RefreshToken from '~/models/Schemas/RefreshToken.schemas'
 
 interface IPayload {
   username: string
@@ -24,8 +30,19 @@ export const loginService = async (payload: IPayload) => {
   if (compareHassPass) {
     const accessToken = generateAccessToken(result?._id.toString() as string)
     const refreshToken = generateRefreshToken(result?._id.toString() as string)
+    await databaseService.refreshToken.insertOne(
+      new RefreshToken({
+        token: refreshToken,
+        user_id: result?._id as ObjectId
+      })
+    )
     return { accessToken, refreshToken }
   }
+}
+
+export const logoutService = async (refreshToken: string) => {
+  await databaseService.refreshToken.deleteOne({ token: refreshToken })
+  return true
 }
 
 export const getMeService = async (payload: string) => {
@@ -50,4 +67,18 @@ export const registerService = async (payload: IPayload) => {
   const hashPassword = await argon2.hash(password)
   const result = await databaseService.users.insertOne(new User({ username, password: hashPassword }))
   return result
+}
+
+export const getUserByIdService = async (userId: string) => {
+  const filter = { _id: new ObjectId(userId) }
+  const user = await databaseService.users.findOne(filter, { projection: listUserProjection })
+  return user
+}
+
+export const refreshService = async (refreshToken: string) => {
+  const decodeToken = decodeRefreshToken(refreshToken)
+  const newAccessToken = generateAccessToken(decodeToken.userId)
+  const newRefreshToken = generateNewRefreshToken(decodeToken.userId, decodeToken.exp as number)
+  await databaseService.refreshToken.findOneAndUpdate({ token: refreshToken }, { $set: { token: newRefreshToken } })
+  return { newAccessToken, newRefreshToken }
 }

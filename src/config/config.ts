@@ -11,6 +11,7 @@ const CONFIG = {
   clusterDB: process.env.DB_CLUSTER,
   dbName: process.env.DB_NAME,
   dbUserCollection: process.env.DB_USER_COLLECTION,
+  dbRefreshTokenCollection: process.env.DB_REFRESH_COLLECTION,
   accessTokenPrivateKey: process.env.ACCESS_TOKEN_SECRET_KEY,
   refreshTokenPrivateKey: process.env.REFRESH_TOKEN_SECRET_KEY
 }
