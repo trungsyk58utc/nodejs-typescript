@@ -1,5 +1,6 @@
 import { Response, Request } from 'express'
 import {
+  changePasswordService,
   getListUserService,
   getMeService,
   getUserByIdService,
@@ -8,6 +9,7 @@ import {
   refreshService,
   registerService
 } from '~/services/users.services'
+import { decodeAccessToken } from '~/utils/jwtToken'
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -109,6 +111,19 @@ export const refresh = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({
       message: 'Get new token fail',
+      error
+    })
+  }
+}
+
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const userId = decodeAccessToken(req?.headers?.authorization?.split(' ')[1] as string).userId
+    await changePasswordService(userId, req?.body.newPassword)
+    return res.json({ message: 'Change password successfully' })
+  } catch (error) {
+    return res.status(400).json({
+      message: 'Change password fail',
       error
     })
   }

@@ -26,3 +26,8 @@ export const decodeRefreshToken = (refreshToken: string) => {
   const decodeToken = jwt.verify(refreshToken, CONFIG.refreshTokenPrivateKey as string) as decode
   return decodeToken
 }
+
+export const decodeAccessToken = (accessToken: string) => {
+  const decodeToken = jwt.verify(accessToken, CONFIG.accessTokenPrivateKey as string) as decode
+  return decodeToken
+}

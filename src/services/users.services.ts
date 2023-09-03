@@ -82,3 +82,12 @@ export const refreshService = async (refreshToken: string) => {
   await databaseService.refreshToken.findOneAndUpdate({ token: refreshToken }, { $set: { token: newRefreshToken } })
   return { newAccessToken, newRefreshToken }
 }
+
+export const changePasswordService = async (userId: string, newPassword: string) => {
+  const hashNewPassword = await argon2.hash(newPassword)
+  const result = await databaseService.users.findOneAndUpdate(
+    { _id: new ObjectId(userId) },
+    { $set: { password: hashNewPassword } }
+  )
+  return result
+}

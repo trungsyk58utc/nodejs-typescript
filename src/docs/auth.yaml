@@ -32,6 +32,22 @@ paths:
       responses:
         '200':
           description: Return notification logout succesfully
+  /api/auth/changePassword:
+    post:
+      tags:
+        - users
+      summary: Change password
+      description: Change password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+      responses:
+        '200':
+          description: Return notification change password succesfully
+      security:
+        - BearerAuth: []
   /api/auth/refresh:
     post:
       tags:
@@ -114,4 +130,12 @@ components:
       type: object
       properties:
         refreshToken:
+          type: string
+    ChangePassword:
+      properties:
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+        confirmNewPassword:
           type: string

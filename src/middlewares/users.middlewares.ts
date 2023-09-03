@@ -1,7 +1,10 @@
+import { ObjectId } from 'mongodb'
+import { decodeAccessToken } from './../utils/jwtToken'
 import { checkSchema } from 'express-validator'
 import databaseService from '~/services/database.service'
 import { decodeRefreshToken } from '~/utils/jwtToken'
 import { validate } from '~/utils/validation'
+import * as argon2 from 'argon2'
 
 export const loginValidate = validate(
   checkSchema({
@@ -56,6 +59,42 @@ export const refreshValidate = validate(
             if ((decodeToken.exp as number) * 1000 < currentTimestamp) throw new Error('Token has expired')
           } else {
             throw new Error('RefreshToken Invalid')
+          }
+        }
+      }
+    }
+  })
+)
+
+export const changePasswordValide = validate(
+  checkSchema({
+    oldPassword: {
+      notEmpty: true,
+      errorMessage: 'oldPassword is required',
+      custom: {
+        options: async (value, { req }) => {
+          const decodeToken = decodeAccessToken(req?.headers?.authorization.split(' ')[1])
+          const userId = decodeToken.userId
+          const user = await databaseService.users.findOne({ _id: new ObjectId(userId) })
+          const compareHassPass = await argon2.verify(user?.password as string, value)
+          if (!compareHassPass) {
+            throw new Error('Old password is not true')
+          }
+        }
+      }
+    },
+    newPassword: {
+      notEmpty: true,
+      errorMessage: 'newPassword is required'
+    },
+    confirmNewPassword: {
+      notEmpty: true,
+      errorMessage: 'confirmNewPassword is required',
+      custom: {
+        options: async (value, { req }) => {
+          const { newPassword } = req.body
+          if (value !== newPassword) {
+            throw new Error('newPassword & confirm password must be the same')
           }
         }
       }
