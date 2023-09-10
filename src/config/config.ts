@@ -13,7 +13,11 @@ const CONFIG = {
   dbUserCollection: process.env.DB_USER_COLLECTION,
   dbRefreshTokenCollection: process.env.DB_REFRESH_COLLECTION,
   accessTokenPrivateKey: process.env.ACCESS_TOKEN_SECRET_KEY,
-  refreshTokenPrivateKey: process.env.REFRESH_TOKEN_SECRET_KEY
+  refreshTokenPrivateKey: process.env.REFRESH_TOKEN_SECRET_KEY,
+  forgotPasswordTokenSecretKey: process.env.FORGOT_PASSWORD_TOKEN_SECRET_KEY,
+  //config send email service
+  userServiceEmail: process.env.USER_SERVICE_MAIL,
+  passwordServiceEmail: process.env.PASSWORD_SERVICE_MAIL
 }
 
 export default CONFIG

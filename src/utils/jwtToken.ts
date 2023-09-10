@@ -1,33 +1,38 @@
-import jwt from 'jsonwebtoken'
+import jwt, { Secret } from 'jsonwebtoken'
 import CONFIG from '~/config/config'
-import { Secret } from 'jsonwebtoken'
 
 interface decode extends jwt.JwtPayload {
   userId: string
+  registerEmail: string
 }
 
 export const generateAccessToken = (userId: string) => {
-  const accessToken = jwt.sign({ userId }, CONFIG.accessTokenPrivateKey as Secret, { expiresIn: '30m' })
-  return accessToken
+  return jwt.sign({ userId }, CONFIG.accessTokenPrivateKey as Secret, { expiresIn: '30m' })
 }
 
 export const generateRefreshToken = (userId: string) => {
-  const refreshToken = jwt.sign({ userId }, CONFIG.refreshTokenPrivateKey as Secret, { expiresIn: '5d' })
-  return refreshToken
+  return jwt.sign({ userId }, CONFIG.refreshTokenPrivateKey as Secret, { expiresIn: '5d' })
 }
 
 export const generateNewRefreshToken = (userId: string, expiredTime_stamp: number) => {
   const expiredTime = expiredTime_stamp - Math.floor(Date.now() / 1000)
-  const refreshToken = jwt.sign({ userId }, CONFIG.refreshTokenPrivateKey as Secret, { expiresIn: expiredTime })
-  return refreshToken
+  return jwt.sign({ userId }, CONFIG.refreshTokenPrivateKey as Secret, { expiresIn: expiredTime })
 }
 
 export const decodeRefreshToken = (refreshToken: string) => {
-  const decodeToken = jwt.verify(refreshToken, CONFIG.refreshTokenPrivateKey as string) as decode
-  return decodeToken
+  return jwt.verify(refreshToken, CONFIG.refreshTokenPrivateKey as string) as decode
 }
 
 export const decodeAccessToken = (accessToken: string) => {
-  const decodeToken = jwt.verify(accessToken, CONFIG.accessTokenPrivateKey as string) as decode
-  return decodeToken
+  return jwt.verify(accessToken, CONFIG.accessTokenPrivateKey as Secret) as decode
+}
+
+export const generateForgotPasswordToken = (registerEmail: string) => {
+  return jwt.sign(registerEmail, CONFIG.forgotPasswordTokenSecretKey as string, {
+    expiresIn: '30m'
+  })
+}
+
+export const decodeForgotPasswordToken = (forgotPasswordToken: string) => {
+  return jwt.verify(forgotPasswordToken, CONFIG.forgotPasswordTokenSecretKey as string) as decode
 }

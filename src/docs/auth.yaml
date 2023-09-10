@@ -116,6 +116,46 @@ paths:
           description: Return list user
       security:
         - BearerAuth: []
+  /api/auth/forgotPassword:
+    post:
+      tags:
+        - users
+      summary: Send mail to get link reset password
+      description: Send mail to get link reset password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPassword'
+      responses:
+        '200':
+          description: Return notification send link reset password
+  /api/auth/checkExpiredResetPassToken:
+    post:
+      tags:
+        - users
+      description: Check token reset password has expired
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordToken'
+      responses:
+        '200':
+          description: Check token reset password has expired
+  /api/auth/changeForgotPassword:
+    post:
+      tags:
+        - users
+      description: Check token reset password has expired
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeForgotPassword'
+      responses:
+        '200':
+          description: Check token reset password has expired
   
 components:
   schemas:
@@ -131,6 +171,11 @@ components:
       properties:
         refreshToken:
           type: string
+    ForgotPasswordToken:
+      type: object
+      properties:
+        forgotPasswordToken:
+          type: string     
     ChangePassword:
       properties:
         oldPassword:
@@ -138,4 +183,16 @@ components:
         newPassword:
           type: string
         confirmNewPassword:
+          type: string
+    ChangeForgotPassword:
+      properties:
+        forgotPasswordToken:
+          type: string   
+        newPassword:
+          type: string
+        confirmNewPassword:
+          type: string
+    ForgotPassword:
+      properties:
+        emailRegister:
           type: string

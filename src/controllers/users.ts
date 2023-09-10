@@ -1,6 +1,8 @@
 import { Response, Request } from 'express'
 import {
+  changeForgotPasswordService,
   changePasswordService,
+  forgotPasswordService,
   getListUserService,
   getMeService,
   getUserByIdService,
@@ -124,6 +126,36 @@ export const changePassword = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({
       message: 'Change password fail',
+      error
+    })
+  }
+}
+
+export const sendMailForgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { emailRegister } = req.body
+    await forgotPasswordService(emailRegister)
+    return res.json({ message: 'Email has been sent to ' + emailRegister })
+  } catch (error) {
+    return res.status(400).json({
+      message: 'Send email fail, pls retry',
+      error
+    })
+  }
+}
+
+export const checkResetPassToken = async (req: Request, res: Response) => {
+  return res.json({ message: 'Token can be use' })
+}
+
+export const changeForgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { forgotPasswordToken, newPassword } = req.body
+    await changeForgotPasswordService(forgotPasswordToken, newPassword)
+    return res.json({ message: 'Password has been changed' })
+  } catch (error) {
+    return res.status(400).json({
+      message: 'Change password fail, pls retry',
       error
     })
   }

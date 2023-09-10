@@ -7,6 +7,7 @@ import databaseService from './services/database.service'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJSDoc from 'swagger-jsdoc'
 import path from 'path'
+import phoneRoutes from './routes/phone.routes'
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -47,6 +48,7 @@ app.use(express.urlencoded({ extended: true, limit: '30mb' }))
 //api authen
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification))
 app.use('/api/auth', userRoutes)
+app.use('/api/phone', phoneRoutes)
 
 app.listen(port, () => {
   console.log(`NodeTS listening on port ${port}`)

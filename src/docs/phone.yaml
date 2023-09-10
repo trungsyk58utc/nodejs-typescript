@@ -1,0 +1,26 @@
+tags:
+  - name: phone
+    description: Everything about phone
+paths:
+  /api/phone/sendOTP:
+    post:
+      tags:
+        - phone
+      summary: Send OTP
+      description: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/phoneSchema'
+      responses:
+        '200':
+          description: Return success notification send OTP
+
+components:
+  schemas:
+    phoneSchema:
+      type: object
+      properties:
+        phoneNumber:
+          type: string

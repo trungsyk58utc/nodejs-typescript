@@ -4,6 +4,7 @@ import * as argon2 from 'argon2'
 import {
   decodeRefreshToken,
   generateAccessToken,
+  generateForgotPasswordToken,
   generateNewRefreshToken,
   generateRefreshToken
 } from '~/utils/jwtToken'
@@ -11,6 +12,7 @@ import jwt, { Secret } from 'jsonwebtoken'
 import CONFIG from '~/config/config'
 import { ObjectId } from 'mongodb'
 import RefreshToken from '~/models/Schemas/RefreshToken.schemas'
+import { sendEmail } from './email.service'
 
 interface IPayload {
   username: string
@@ -65,14 +67,12 @@ export const getListUserService = async () => {
 export const registerService = async (payload: IPayload) => {
   const { username, password } = payload
   const hashPassword = await argon2.hash(password)
-  const result = await databaseService.users.insertOne(new User({ username, password: hashPassword }))
-  return result
+  return await databaseService.users.insertOne(new User({ username, password: hashPassword }))
 }
 
 export const getUserByIdService = async (userId: string) => {
   const filter = { _id: new ObjectId(userId) }
-  const user = await databaseService.users.findOne(filter, { projection: listUserProjection })
-  return user
+  return await databaseService.users.findOne(filter, { projection: listUserProjection })
 }
 
 export const refreshService = async (refreshToken: string) => {
@@ -85,9 +85,33 @@ export const refreshService = async (refreshToken: string) => {
 
 export const changePasswordService = async (userId: string, newPassword: string) => {
   const hashNewPassword = await argon2.hash(newPassword)
-  const result = await databaseService.users.findOneAndUpdate(
+  return await databaseService.users.findOneAndUpdate(
     { _id: new ObjectId(userId) },
     { $set: { password: hashNewPassword } }
   )
-  return result
+}
+
+export const forgotPasswordService = async (emailRegister: string) => {
+  const newUserForgotToken = generateForgotPasswordToken(emailRegister)
+  await databaseService.users.findOneAndUpdate(
+    { email: emailRegister },
+    { $set: { forgot_password_token: newUserForgotToken as string } }
+  )
+  try {
+    return sendEmail(emailRegister, newUserForgotToken)
+  } catch (error) {
+    return error
+  }
+}
+
+export const changeForgotPasswordService = async (forgotPasswordToken: string, newPassword: string) => {
+  try {
+    const hashpassword = await argon2.hash(newPassword)
+    return await databaseService.users.findOneAndUpdate(
+      { forgot_password_token: forgotPasswordToken },
+      { $set: { password: hashpassword } }
+    )
+  } catch (error) {
+    return error
+  }
 }

@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import { decodeAccessToken } from './../utils/jwtToken'
+import { decodeAccessToken, decodeForgotPasswordToken } from '~/utils/jwtToken'
 import { checkSchema } from 'express-validator'
 import databaseService from '~/services/database.service'
 import { decodeRefreshToken } from '~/utils/jwtToken'
@@ -96,6 +96,63 @@ export const changePasswordValide = validate(
           if (value !== newPassword) {
             throw new Error('newPassword & confirm password must be the same')
           }
+        }
+      }
+    }
+  })
+)
+
+export const checkForgotPasswordValidate = validate(
+  checkSchema({
+    emailRegister: {
+      notEmpty: true,
+      isEmail: {
+        errorMessage: 'Email is not validate'
+      },
+      errorMessage: 'Email Register is required',
+      custom: {
+        options: async (value) => {
+          const checkMailResult = await databaseService.users.findOne({ email: value })
+          if (!checkMailResult) throw new Error('Email is not exist in system')
+        }
+      }
+    }
+  })
+)
+
+export const checkForgotPasswordTokenValidate = validate(
+  checkSchema({
+    forgotPasswordToken: {
+      notEmpty: true,
+      custom: {
+        options: async (value) => {
+          const checkForgotPassToken = await databaseService.users.findOne({ forgot_password_token: value })
+          if (!checkForgotPassToken) throw new Error('This is not reset password token')
+          const decode = decodeForgotPasswordToken(value)
+          const currentTimestamp = Math.floor(Date.now() / 1000)
+          if ((decode.exp as number) * 1000 < currentTimestamp) throw new Error('This token has been expired')
+        }
+      }
+    }
+  })
+)
+
+export const changeForgotPasswordValidate = validate(
+  checkSchema({
+    forgotPasswordToken: {
+      notEmpty: true,
+      errorMessage: 'Forgot password token is required'
+    },
+    newPassword: {
+      notEmpty: true,
+      errorMessage: 'New password token is required'
+    },
+    confirmNewPassword: {
+      notEmpty: true,
+      errorMessage: 'Confirm new password is  required',
+      custom: {
+        options: async (value, { req }) => {
+          if (value !== req.body.newPassword) throw new Error('New password & confirm new password must be same')
         }
       }
     }
