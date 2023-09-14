@@ -15,6 +15,7 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
           error: 'Invalid token'
         })
       }
+      req.user = result._id
       next()
     }
   } catch (error) {
