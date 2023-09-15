@@ -12,4 +12,4 @@ RUN yarn build
 
 COPY src/docs dist/docs
 
-CMD ["pm2-runtime", "start", "dist/index.js"]
+CMD ["pm2-runtime", "ecosystem.config.js"]
